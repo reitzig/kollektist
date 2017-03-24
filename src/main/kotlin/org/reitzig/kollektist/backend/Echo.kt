@@ -17,5 +17,6 @@ object Echo: Backend {
         println(task.description)
         println("#${task.project.name}")
         println(task.labels.map { "@${it.name}" }.joinToString(" "))
+        println("${task.priority.name} priority")
     }
 }

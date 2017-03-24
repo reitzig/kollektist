@@ -1,6 +1,7 @@
 package org.reitzig.kollektist.backend
 
 import org.reitzig.kollektist.Label
+import org.reitzig.kollektist.Priority
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 import org.reitzig.kollektist.frontend.Frontend
@@ -57,8 +58,12 @@ class Files(dirPath: String) : Backend, Frontend {
             val lines = it.readLines()
             it.delete()
 
-            if (lines.size >= 3) {
-                Task(lines[0], Project(lines[1]), lines[2].split(",").map(::Label).toSet())
+            if (lines.isNotEmpty()) { // TODO same as CLI; abstract out?
+                Task(lines[0],
+                     Project(lines.getOrNull(1) ?: "Inbox"), // TODO general?
+                     lines.getOrNull(2)?.split(",")?.map(::Label)?.toSet() ?: setOf(),
+                     lines.getOrNull(3)?.toIntOrNull()?.let { Priority.valueOf(it) } ?: Priority.Normal
+                )
             } else {
                 null
             }

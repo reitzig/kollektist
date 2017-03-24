@@ -8,7 +8,7 @@ import org.reitzig.kollektist.frontend.CLI
 import org.reitzig.kollektist.frontend.Frontend
 
 fun main(args: Array<String>) {
-    var folder = "."
+    var folder = "." // TODO make parameter?
     var backend: Backend = Todoist
     var frontend: Frontend = CLI
     var loop = false
@@ -39,12 +39,8 @@ fun main(args: Array<String>) {
         }
     }
 
-    // TODO select combination of front- and backend by parameters.
-    //  Default: CLI/GUI (choose from context?) + Todoist
-    //  Demon operation: Demon + Todoist; CLI/GUI + Files
-
-    //println("Available projects: ${backend.projects()}")
-    //println("Available labels: ${backend.labels()}")
+    println(backend.labels())
+    println(backend.projects())
 
     do {
         frontend.next()?.let { backend.add(it) }

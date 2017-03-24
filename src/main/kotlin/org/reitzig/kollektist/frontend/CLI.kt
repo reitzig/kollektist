@@ -1,6 +1,5 @@
 package org.reitzig.kollektist.frontend
 
-import org.reitzig.kollektist.frontend.Frontend
 import org.reitzig.kollektist.*
 
 object CLI: Frontend {
@@ -8,9 +7,12 @@ object CLI: Frontend {
         print("Task name: ")
         val name = readLine() ?: return this.next()
         print("Project: ")
-        val project = readLine() ?: return this.next()
+        val project = Project(readLine() ?: "Inbox") // TODO universally right?
         print("Labels: ")
-        val labels = readLine()?.split(Regex("[\\s,]+")) ?: return this.next()
-        return Task(name, Project(project), labels.map(::Label).toSet())
+        val labels = readLine()?.split(Regex("[\\s,]+"))?.map(::Label) ?: listOf()
+        print("Priority: ")
+        val priority: Priority = readLine()?.toIntOrNull()?.let { Priority.valueOf(it) } ?: Priority.Normal
+
+        return Task(name, project, labels.toSet(), priority)
     }
 }
