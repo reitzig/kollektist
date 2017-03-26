@@ -27,7 +27,7 @@ class Files(dirPath: String) : Backend, Frontend {
 
     override fun labels(): Set<Label> {
         if (labelsFile.exists()) {
-            return labelsFile.readLines().map(::Label).toSet()
+            return labelsFile.readLines().map { Label(it) }.toSet()
         } else {
             return setOf()
         }
@@ -35,7 +35,7 @@ class Files(dirPath: String) : Backend, Frontend {
 
     override fun projects(): Set<Project> {
         if (projectsFile.exists()) {
-            return projectsFile.readLines().map(::Project).toSet()
+            return projectsFile.readLines().map { Project(it) }.toSet()
         } else {
             return setOf()
         }
@@ -49,6 +49,8 @@ class Files(dirPath: String) : Backend, Frontend {
             it.write(task.project.name)
             it.appendln()
             it.write(task.labels.map { it.name }.joinToString(","))
+            it.appendln()
+            it.write(task.priority.numeric.toString())
         }
     }
 
@@ -61,7 +63,7 @@ class Files(dirPath: String) : Backend, Frontend {
             if (lines.isNotEmpty()) { // TODO same as CLI; abstract out?
                 Task(lines[0],
                      Project(lines.getOrNull(1) ?: "Inbox"), // TODO general?
-                     lines.getOrNull(2)?.split(",")?.map(::Label)?.toSet() ?: setOf(),
+                     lines.getOrNull(2)?.split(",")?.map { Label(it) }?.toSet() ?: setOf(),
                      lines.getOrNull(3)?.toIntOrNull()?.let { Priority.valueOf(it) } ?: Priority.Normal
                 )
             } else {

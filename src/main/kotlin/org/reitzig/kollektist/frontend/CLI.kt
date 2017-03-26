@@ -9,9 +9,9 @@ object CLI: Frontend {
         print("Project: ")
         val project = Project(readLine() ?: "Inbox") // TODO universally right?
         print("Labels: ")
-        val labels = readLine()?.split(Regex("[\\s,]+"))?.map(::Label) ?: listOf()
+        val labels = readLine()?.split(Regex("[\\s,]+"))?.map { Label(it) } ?: listOf()
         print("Priority: ")
-        val priority: Priority = readLine()?.toIntOrNull()?.let { Priority.valueOf(it) } ?: Priority.Normal
+        val priority: Priority = readLine()?.toIntOrNull()?.let { Priority.valueOf(it.toInt()) } ?: Priority.Normal
 
         return Task(name, project, labels.toSet(), priority)
     }

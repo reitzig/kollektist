@@ -1,6 +1,7 @@
 package org.reitzig.kollektist.backend
 
 import com.github.kittinunf.fuel.httpPost
+import org.reitzig.kollektist.Color
 import org.reitzig.kollektist.Label
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
@@ -10,7 +11,7 @@ import org.reitzig.kollektist.Task
  * TODO document
  * @author Raphael Reitzig
  */
-object Todoist: Backend {
+object Todoist : Backend {
     /**
      * Where to reach the Todoist API.
      */
@@ -20,28 +21,28 @@ object Todoist: Backend {
      * The colors available on Todoist, mapping their color code to RGB hex.
      */
     val colors = mapOf(
-         0 to "#95ef63",
-         1 to "#ff8581",
-         2 to "#ffc471",
-         3 to "#f9ec75",
-         4 to "#a8c8e4",
-         5 to "#d2b8a3",
-         6 to "#e2a8e4",
-         7 to "#cccccc",
-         8 to "#fb886e",
-         9 to "#ffcc00",
-        10 to "#74e8d3",
-        11 to "#3bd5fb",
-        12 to "#dc4fad",
-        13 to "#ac193d",
-        14 to "#d24726",
-        15 to "#82ba00",
-        16 to "#03b3b2",
-        17 to "#008299",
-        18 to "#5db2ff",
-        19 to "#0072c6",
-        20 to "#000000",
-        22 to "#777777"
+            0 to Color("#95ef63"),
+            1 to Color("#ff8581"),
+            2 to Color("#ffc471"),
+            3 to Color("#f9ec75"),
+            4 to Color("#a8c8e4"),
+            5 to Color("#d2b8a3"),
+            6 to Color("#e2a8e4"),
+            7 to Color("#cccccc"),
+            8 to Color("#fb886e"),
+            9 to Color("#ffcc00"),
+            10 to Color("#74e8d3"),
+            11 to Color("#3bd5fb"),
+            12 to Color("#dc4fad"),
+            13 to Color("#ac193d"),
+            14 to Color("#d24726"),
+            15 to Color("#82ba00"),
+            16 to Color("#03b3b2"),
+            17 to Color("#008299"),
+            18 to Color("#5db2ff"),
+            19 to Color("#0072c6"),
+            20 to Color("#000000"),
+            22 to Color("#777777")
     )
 
 
@@ -50,7 +51,6 @@ object Todoist: Backend {
                 Pair("sync_token", "*"), // TODO make incremental?
                 Pair("resource_types", "[\"$type\"]")
         )).responseString { request, response, result ->
-            println(request)
             println(response)
             println(result)
         }
@@ -60,11 +60,11 @@ object Todoist: Backend {
 
     // TODO get once async, store future in (lazy?) val?
     override fun labels(): Set<Label> {
-        return getResourceList("labels").map(::Label).toSet()
+        return getResourceList("labels").map { Label(it) }.toSet()
     }
 
     override fun projects(): Set<Project> {
-        return getResourceList("projects").map(::Project).toSet()
+        return getResourceList("projects").map { Project(it) }.toSet()
     }
 
     /**
