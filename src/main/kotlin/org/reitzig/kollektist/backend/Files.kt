@@ -43,7 +43,12 @@ class Files(dirPath: String) : Backend, Frontend {
 
     override fun add(task: Task) {
         // TODO pick more robust way of choosing filename
-        File("${directory.absolutePath}/$taskFilePrefix${System.currentTimeMillis()}").writer().use {
+        val target = File("${directory.absolutePath}/$taskFilePrefix${System.currentTimeMillis()}")
+
+        // Prevent Files.next picking up anything before file is written completely
+        val tmp = File.createTempFile("kollektist", "")
+        tmp.writer().use {
+            println("writing task")
             it.write(task.description)
             it.appendln()
             it.write(task.project.name)
@@ -52,6 +57,8 @@ class Files(dirPath: String) : Backend, Frontend {
             it.appendln()
             it.write(task.priority.numeric.toString())
         }
+        tmp.copyTo(target)
+        tmp.delete()
     }
 
     override fun next(): Task? {

@@ -11,7 +11,7 @@ object CLI: Frontend {
         print("Labels: ")
         val labels = readLine()?.split(Regex("[\\s,]+"))?.map { Label(it) } ?: listOf()
         print("Priority: ")
-        val priority: Priority = readLine()?.toIntOrNull()?.let { Priority.valueOf(it.toInt()) } ?: Priority.Normal
+        val priority: Priority = readLine()?.trim()?.toIntOrNull()?.let { Priority.valueOf(it) } ?: Priority.Normal
 
         return Task(name, project, labels.toSet(), priority)
     }

@@ -44,5 +44,6 @@ fun main(args: Array<String>) {
 
     do {
         frontend.next()?.let { backend.add(it) }
+        if (loop) Thread.sleep(100) // TODO Without sleep, it fails with looping Files frontend -- why?
     } while (loop) // TODO how to avoid active looping with Files frontend here?
 }
