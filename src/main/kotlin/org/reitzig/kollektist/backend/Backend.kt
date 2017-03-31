@@ -1,7 +1,6 @@
 package org.reitzig.kollektist.backend
 
 import org.reitzig.kollektist.Label
-import org.reitzig.kollektist.Priority
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 
@@ -9,12 +8,12 @@ interface Backend {
     /**
      * Returns the set of labels that is available on this backend.
      */
-    fun labels(): Set<Label>
+    fun labels(): List<Label>
 
     /**
      * Returns the set of projects that is available on this backend.
      */
-    fun projects(): Set<Project>
+    fun projects(): List<Project>
 
     /**
      * Adds a task via this backend.

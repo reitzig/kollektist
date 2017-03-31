@@ -39,9 +39,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    println(backend.labels())
-    println(backend.projects())
-
+    frontend.prepare(backend)
     do {
         frontend.next()?.let { backend.add(it) }
         if (loop) Thread.sleep(100) // TODO Without sleep, it fails with looping Files frontend -- why?

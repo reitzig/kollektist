@@ -6,22 +6,22 @@ import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 
 object Echo : Backend {
-    override fun labels(): Set<Label> {
-        return setOf()
+    override fun labels(): List<Label> {
+        return listOf()
     }
 
-    override fun projects(): Set<Project> {
-        return setOf()
+    override fun projects(): List<Project> {
+        return listOf()
     }
 
     override fun add(task: Task) {
         println(task.description)
-        println("#${AnsiColor.wrap(task.project.name, task.project.color)}")
-        println(task.labels.map { "@${AnsiColor.wrap(it.name, it.color)}" }.joinToString(" "))
+        println("#${AnsiColor.wrap(task.project.name, Todoist.Colors[task.project.color])}")
+        println(task.labels.map { "@${AnsiColor.wrap(it.name, Todoist.Colors[it.color])}" }.joinToString(" "))
         println(AnsiColor.wrap("${task.priority.name} priority", task.priority.color))
     }
 
-    private
+    internal
 
     enum class AnsiColor(val ansi: String, val rgb: Color) {
         NoColor("0", Color.NoColor),

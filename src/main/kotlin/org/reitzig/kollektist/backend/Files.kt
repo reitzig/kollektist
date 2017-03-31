@@ -1,7 +1,7 @@
 package org.reitzig.kollektist.backend
 
+import com.github.salomonbrys.kotson.typeToken
 import org.reitzig.kollektist.Label
-import org.reitzig.kollektist.Priority
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 import org.reitzig.kollektist.frontend.Frontend
@@ -25,19 +25,19 @@ class Files(dirPath: String) : Backend, Frontend {
         }
     }
 
-    override fun labels(): Set<Label> {
+    override fun labels(): List<Label> {
         if (labelsFile.exists()) {
-            return labelsFile.readLines().map { Label(it) }.toSet()
+            return JsonHandler.fromJson(labelsFile.readText(), typeToken<List<Label>>())
         } else {
-            return setOf()
+            return listOf()
         }
     }
 
-    override fun projects(): Set<Project> {
+    override fun projects(): List<Project> {
         if (projectsFile.exists()) {
-            return projectsFile.readLines().map { Project(it) }.toSet()
+            return JsonHandler.fromJson(projectsFile.readText(), typeToken<List<Project>>())
         } else {
-            return setOf()
+            return listOf()
         }
     }
 
@@ -48,34 +48,36 @@ class Files(dirPath: String) : Backend, Frontend {
         // Prevent Files.next picking up anything before file is written completely
         val tmp = File.createTempFile("kollektist", "")
         tmp.writer().use {
-            println("writing task")
-            it.write(task.description)
-            it.appendln()
-            it.write(task.project.name)
-            it.appendln()
-            it.write(task.labels.map { it.name }.joinToString(","))
-            it.appendln()
-            it.write(task.priority.numeric.toString())
+            it.write(task.toJson())
         }
         tmp.copyTo(target)
         tmp.delete()
     }
 
+    override fun prepare(target: Backend) {
+        // Chances are somebody is (going to be) running Files as backend
+        // -- otherwise this instance would be pretty useless!
+        // So, write out the project and label list
+
+        val labels = target.labels()
+        if (!labels.isEmpty()) {
+            labelsFile.writeText(JsonHandler.toJson(labels))
+        }
+
+        val projects = target.projects()
+        if (!projects.isEmpty()) {
+            projectsFile.writeText(JsonHandler.toJson(projects))
+        }
+
+        // TODO how/when to update the files? After every call to next?
+    }
+
     override fun next(): Task? {
         val files = directory.walkTopDown().maxDepth(1).filter { it.name.startsWith(taskFilePrefix) }
         return files.firstOrNull()?.let {
-            val lines = it.readLines()
+            val content = it.readText()
             it.delete()
-
-            if (lines.isNotEmpty()) { // TODO same as CLI; abstract out?
-                Task(lines[0],
-                     Project(lines.getOrNull(1) ?: "Inbox"), // TODO general?
-                     lines.getOrNull(2)?.split(",")?.map { Label(it) }?.toSet() ?: setOf(),
-                     lines.getOrNull(3)?.toIntOrNull()?.let { Priority.valueOf(it) } ?: Priority.Normal
-                )
-            } else {
-                null
-            }
+            return Task(json = content)
         }
     }
 }
