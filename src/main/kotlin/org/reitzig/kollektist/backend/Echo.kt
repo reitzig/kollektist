@@ -16,7 +16,9 @@ object Echo : Backend {
 
     override fun add(task: Task) {
         println(task.description)
-        println("#${AnsiColor.wrap(task.project.name, Todoist.Colors[task.project.color])}")
+        task.project?.let {
+            println("#${AnsiColor.wrap(it.name, Todoist.Colors[it.color])}")
+        }
         println(task.labels.map { "@${AnsiColor.wrap(it.name, Todoist.Colors[it.color])}" }.joinToString(" "))
         println(AnsiColor.wrap("${task.priority.name} priority", task.priority.color))
     }

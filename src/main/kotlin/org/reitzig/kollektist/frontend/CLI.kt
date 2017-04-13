@@ -9,7 +9,11 @@ import org.reitzig.kollektist.backend.Echo
 import org.reitzig.kollektist.backend.Todoist
 
 object CLI: Frontend {
+    private var backend: Backend? = null
+
     override fun prepare(target: Backend) {
+        this.backend = target
+
         println("Available projects: ")
         println(target.projects().map {
             Echo.AnsiColor.wrap(it.name, Todoist.Colors[it.color])
@@ -25,10 +29,21 @@ object CLI: Frontend {
     override fun next(): Task? {
         print("Task name: ")
         val name = readLine() ?: return this.next()
-        print("Project: ")
-        val project = Project(readLine() ?: "Inbox") // TODO universally right?
-        print("Labels: ")
-        val labels = readLine()?.split(Regex("[\\s,]+"))?.map { Label(it) } ?: listOf()
+
+        var project: Project? = null
+        val labels: MutableSet<Label> = mutableSetOf()
+        if (this.backend != null) {
+            print("Project: ")
+            val projectName = readLine()
+            project = this.backend!!.projects().firstOrNull() { it.name == projectName } // TODO fuzzy search?
+            println("\tAdding task to #${project?.name ?: "Inbox"}") // TODO or create new?
+
+            print("Labels: ")
+            readLine()?.split(Regex("[\\s,]+"))?.forEach { labelName ->
+                this.backend!!.labels().firstOrNull() { it.name == labelName }?.let { labels.add(it) }
+            }  // TODO fuzzy search?
+            println("\tAssigning labels ${labels.map { "@${it.name}" }.joinToString(", ")}") // TODO or create new?
+        }
         print("Priority: ")
         val priority: Priority = readLine()?.trim()?.toIntOrNull()?.let { Priority(it) } ?: Priority.Normal
 

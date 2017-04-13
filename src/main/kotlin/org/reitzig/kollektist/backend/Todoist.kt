@@ -1,6 +1,7 @@
 package org.reitzig.kollektist.backend
 
 import com.github.kittinunf.fuel.httpPost
+import com.github.salomonbrys.kotson.addProperty
 import com.github.salomonbrys.kotson.jsonArray
 import com.github.salomonbrys.kotson.typeToken
 import com.google.gson.JsonArray
@@ -9,6 +10,7 @@ import org.reitzig.kollektist.JsonRepresentable
 import org.reitzig.kollektist.Label
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
+import java.util.*
 import org.reitzig.kollektist.Color as KColor
 
 /**
@@ -59,7 +61,7 @@ object Todoist : Backend {
 
 
     private fun <T : JsonRepresentable<T>> getResourceArray(type: String): JsonArray {
-        val (request, response, result) = "https://todoist.com/API/v7/sync".httpPost(listOf(
+        val (request, response, result) = this.baseUrl.httpPost(listOf(
                 Pair("sync_token", "*"), // TODO make incremental?
                 Pair("resource_types", "[\"$type\"]")
         )).responseString()
@@ -92,6 +94,33 @@ object Todoist : Backend {
      * Uploads the specified task to the connected Todoist account.
      */
     override fun add(task: Task) {
-        println("Stored task $task")
+        val command = JsonObject()
+        command.addProperty("type", "item_add")
+        command.addProperty("args", taskApiAdapter.toJsonTree(task))
+        command.addProperty("uuid", UUID.randomUUID().toString())
+        command.addProperty("temp_id", UUID.randomUUID().toString())
+
+        val (request, response, result) = this.baseUrl.httpPost(listOf(
+                Pair("commands", "[${command.toString()}]")
+        )).responseString()
+
+        if (response.httpStatusCode == 200) {
+            //println(JsonHandler.fromJson<JsonObject>(result.component1()!!, typeToken<JsonObject>()).toString())
+            /* Getting back something like:
+             { "sync_status": {
+                    "fab8a3de-3125-47c8-8790-021ad3b8d286": "ok"
+               },
+               "temp_id_mapping": {
+                    "93c4c929-9d4a-408d-b4e9-c7bcfe73d5d1": 2162409578
+               },
+               "full_sync": true,
+               "sync_token": "Snlp1gLPZWT3TyGbWDUlJEPtoBlrW5syj9eDF6S4r8bs_ftLa6MEwDVQZGp5yrqswMqhXAd42EzNqUXj2-En7JjeAn7-oH9HwQ-Acnk2Tvoo9Nk"
+             }
+            */
+        } else {
+            println("ERROR: ${response.httpStatusCode} response from server")
+            println("Request was:\n$request")
+            println("Response was:\n$response")
+        }
     }
 }

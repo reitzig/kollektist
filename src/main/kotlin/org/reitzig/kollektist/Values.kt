@@ -8,9 +8,10 @@ import org.reitzig.kollektist.backend.JsonHandler
 //      https://kotlinlang.org/docs/reference/delegated-properties.html#storing-properties-in-a-map
 
 data class Task(val description: String,
-                val project: Project, // = Inbox?!
+                val project: Project? = null, // = Inbox
                 val labels: Set<Label> = setOf(),
                 val priority: Priority = Priority.Normal) : JsonRepresentable<Task> {
+
     override fun toJson(): String {
         return JsonHandler.toJson(this)
     }
@@ -65,14 +66,14 @@ data class Project(val name: String,
 }
 
 enum class Priority(val numeric: Int, val color: Color = Color.NoColor) {
-    Critical(1, Color(172, 0, 0)),
-    High(2, Color(248, 128, 28)),
-    Urgent(3, Color(252, 193, 43)),
-    Normal(4);
+    Critical(4, Color(172, 0, 0)),
+    High(3, Color(248, 128, 28)),
+    Urgent(2, Color(252, 193, 43)),
+    Normal(1);
 
     companion object {
         // From http://stackoverflow.com/a/37795810/539599
-        private val map = Priority.values().associateBy(Priority::numeric);
+        private val map = Priority.values().associateBy(Priority::numeric)
 
         operator fun invoke(numeric: Int) = map[numeric]
         operator fun invoke(name: String) = Priority.valueOf(name)

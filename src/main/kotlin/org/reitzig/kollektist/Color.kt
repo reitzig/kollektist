@@ -25,6 +25,7 @@ data class Color(val r: Int, val g: Int, val b: Int) {
     }
 
     fun distance(other: Color): Double {
+        // TODO this is no good. --> http://stackoverflow.com/a/4356523/539599
         return Math.sqrt(Math.pow((r - other.r).toDouble(), 2.0) +
                          Math.pow((g - other.g).toDouble(), 2.0) +
                          Math.pow((b - other.b).toDouble(), 2.0))

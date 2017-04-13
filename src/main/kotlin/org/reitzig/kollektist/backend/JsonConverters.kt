@@ -6,7 +6,9 @@ import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import org.reitzig.kollektist.Label
+import org.reitzig.kollektist.Priority
 import org.reitzig.kollektist.Project
+import org.reitzig.kollektist.Task
 
 val labelAdapter = typeAdapter<Label> {
     write {
@@ -84,9 +86,82 @@ val projectAdapter = typeAdapter<Project> {
 
 }
 
+val taskAdapter = typeAdapter<Task> {
+    write {
+        beginObject()
+
+        name("content"); value(it.description)
+        it.project?.let {
+            name("project")
+            projectAdapter.write(this, it)
+        }
+        name("priority"); value(it.priority.numeric)
+        name("labels")
+        beginArray()
+        it.labels.forEach {
+            labelAdapter.write(this, it)
+        }
+        endArray()
+        // TODO due date?
+
+        endObject()
+    }
+
+    read {
+        var description: String = ""
+        var project: Project? = null
+        var priority: Priority = Priority.Normal
+        val labels: MutableSet<Label> = mutableSetOf()
+
+        beginObject()
+        while (this.hasNext()) {
+            when (this.nextName()) {
+                "content"  -> description = this.nextString()
+                "project"  -> project = projectAdapter.read(this)
+                "priority" -> priority = Priority(this.nextInt())!!
+                "labels"   -> {
+                    beginArray()
+                    while (this.hasNext() && this.peek() == JsonToken.BEGIN_OBJECT) {
+                        labels.add(labelAdapter.read(this))
+                    }
+                    endArray()
+                }
+            }
+        }
+        endObject()
+
+        Task(description, project, labels, priority)
+    }
+}
+
+val taskApiAdapter = typeAdapter<Task> {
+    write {
+        beginObject()
+
+        name("content"); value(it.description)
+        it.project?.let {
+            name("project_id"); value(it.id)
+        }
+        name("priority"); value(it.priority.numeric)
+        name("labels")
+        beginArray()
+        it.labels.forEach {
+            value(it.id)
+        }
+        endArray()
+
+        endObject()
+    }
+
+    read {
+        throw NotImplementedError()
+    }
+}
+
 val JsonHandler = GsonBuilder()
         .registerTypeAdapter<Label>(labelAdapter)
         .registerTypeAdapter<Project>(projectAdapter)
+        .registerTypeAdapter<Task>(taskAdapter)
         .create()!!
 
 // Extensions to JsonReader for reading nullable values
