@@ -7,19 +7,40 @@ import org.reitzig.kollektist.backend.Todoist
 import org.reitzig.kollektist.frontend.CLI
 import org.reitzig.kollektist.frontend.Frontend
 
+/**
+ * The main program.
+ *
+ * After setup, retrieves task from the specified `Frontend` and adds them to the specified `Backend`.
+ * If `--loop` is set, this is iterated until the user aborts.
+ *
+ * @throws IllegalArgumentException if the parameters were invalid.
+ */
 fun main(args: Array<String>) {
+    // Default values
     var folder = "." // TODO make parameter?
-    var backend: Backend = Todoist
+    var backend: Backend = Echo
     var frontend: Frontend = CLI
+    var apiToken: String? = null
     var loop = false
 
+    if (args.isEmpty()) {
+        println("Usage: java -jar <jar> --api-token=<token> --backend=<echo|files|todoist> --frontend=<cli|files> [--loop]")
+        return
+    }
+
+    // Consume the parameters
     args.forEach {
         if (it.startsWith("--backend=")) {
             when (it.drop(10)) {
-                "echo" -> backend = Echo
-                "files" -> backend = Files(folder)
-                "todoist" -> backend = Todoist
-                else -> {
+                "echo"    -> backend = Echo
+                "files"   -> backend = Files(folder)
+                "todoist" -> {
+                    if (apiToken == null) {
+                        throw IllegalArgumentException("API token must be passed before the backend!")
+                    }
+                    backend = Todoist(apiToken!!)
+                }
+                else      -> {
                     throw IllegalArgumentException("No backend '$it' available.")
                 }
             }
@@ -27,16 +48,23 @@ fun main(args: Array<String>) {
             when (it.drop(11)) {
                 "cli"   -> frontend = CLI
                 "files" -> frontend = Files(folder)
-                "gui"   -> frontend = CLI // TODO change
+            //"gui"   -> frontend = GUI(); // TODO
                 else    -> {
                     throw IllegalArgumentException("No frontend '$it' available.")
                 }
             }
+        } else if (it.startsWith("--api-token=")) {
+            apiToken = it.drop(12)
         } else if (it == "--loop") {
             loop = true
         } else {
             println("Ignoring unknown parameter '$it'.")
         }
+    }
+
+    // TODO do we allow lazy retrieval of API tokens?
+    if (apiToken == null) {
+        throw java.lang.IllegalArgumentException("No API token provided!")
     }
 
     frontend.prepare(backend)

@@ -24,6 +24,9 @@ data class Color(val r: Int, val g: Int, val b: Int) {
         assert(b in 0.0..1.0, {"Invalid value $b"})
     }
 
+    /**
+     * Computes the distance between this and the given color.
+     */
     fun distance(other: Color): Double {
         // TODO this is no good. --> http://stackoverflow.com/a/4356523/539599
         return Math.sqrt(Math.pow((r - other.r).toDouble(), 2.0) +
@@ -36,7 +39,14 @@ data class Color(val r: Int, val g: Int, val b: Int) {
          * A dummy color that indicates that no special color should be used.
          */
         val NoColor = Color(-77,-77,-77)
+        // TODO why does this not trigger the assertion? Or does it?
 
+        /**
+         * Creates a new color from the given hex string.
+         *
+         * @param hex A color string as e.g. seen in HTML, i.e. `#FFFFFF` is white.
+         * @return The color obtained when reading the hex number as three one-byte numbers (RGB).
+         */
         operator fun invoke(hex: String): Color {
             assert(Regex("#?[a-fA-F0-6]{6}").matches(hex), { "$hex is not a hex color" })
             val r = hex.substring((hex.length - 6) + (0..1)).toInt(16)

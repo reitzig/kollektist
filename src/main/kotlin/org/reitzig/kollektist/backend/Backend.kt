@@ -4,6 +4,12 @@ import org.reitzig.kollektist.Label
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 
+/**
+ * Abstraction for Kollektist backends.
+ *
+ * Backends retrieve lists of labels and projects (maybe empty) and
+ * write tasks.
+ */
 interface Backend {
     /**
      * Returns the set of labels that is available on this backend.

@@ -8,6 +8,17 @@ import org.reitzig.kollektist.backend.Backend
 import org.reitzig.kollektist.backend.Echo
 import org.reitzig.kollektist.backend.Todoist
 
+/**
+ * A command-line frontend.
+ * Presents the user with a basic series of prompts for the properties of the new task.
+ *
+ *  * Project and label names must match exactly.
+ *  * Enter project and label names without `@` and `#`.
+ *  * Separate multiple labels by comma and/or whitespace.
+ *  * Priority must be one of `4` (highest), `3`, `2`, `1` (lowest).
+ *
+ *  The defaults are `Inbox`, no label, `1`.
+ */
 object CLI: Frontend {
     private var backend: Backend? = null
 

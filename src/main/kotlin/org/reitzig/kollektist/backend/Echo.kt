@@ -5,15 +5,27 @@ import org.reitzig.kollektist.Label
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 
+/**
+ * A simple backend that just prints the tasks it receives to stdout.
+ */
 object Echo : Backend {
+    /**
+     * There are no labels to be had here, so this is always empty.
+     */
     override fun labels(): List<Label> {
         return listOf()
     }
 
+    /**
+     * There are no projects to be had here, so this is always empty.
+     */
     override fun projects(): List<Project> {
         return listOf()
     }
 
+    /**
+     * Prints this task to stdout.
+     */
     override fun add(task: Task) {
         println(task.description)
         task.project?.let {
@@ -23,9 +35,11 @@ object Echo : Backend {
         println(AnsiColor.wrap("${task.priority.name} priority", task.priority.color))
     }
 
-    internal
-
-    enum class AnsiColor(val ansi: String, val rgb: Color) {
+    /**
+     * An abstraction for the ANSI color codes that we can use to highlight
+     * labels and projects on the command line.
+     */
+    internal enum class AnsiColor(val ansi: String, val rgb: Color) {
         NoColor("0", Color.NoColor),
         Black("0;30", Color(0, 0, 0)),
         Red("0;31", Color(170, 0, 0)),
@@ -47,12 +61,20 @@ object Echo : Backend {
         val shellCode = "\u001b[${this.ansi}m"
 
         companion object {
+            /**
+             * Finds the ANSI color that is closes to the given color,
+             * as defined by `Color.distance(...)`.
+             */
             fun closestTo(color: Color): AnsiColor {
                 return values().map { Pair(it, it.rgb.distance(color)) }
                         .minBy { it.second }!!
                         .first
             }
 
+            /**
+             * Wraps `string` in escape sequences that makes the shell print
+             * it in the (closest approximation of) `color`.
+             */
             fun wrap(string: String, color: Color): String {
                 return "${AnsiColor.closestTo(color).shellCode}$string${AnsiColor.NoColor.shellCode}"
             }

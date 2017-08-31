@@ -16,9 +16,8 @@ import org.reitzig.kollektist.Color as KColor
 /**
  * Refer to https://developer.todoist.com/ for documentation.
  * TODO document
- * @author Raphael Reitzig
  */
-object Todoist : Backend {
+class Todoist(var apiToken: String) : Backend {
     /**
      * Where to reach the Todoist API.
      */
@@ -62,6 +61,7 @@ object Todoist : Backend {
 
     private fun <T : JsonRepresentable<T>> getResourceArray(type: String): JsonArray {
         val (request, response, result) = this.baseUrl.httpPost(listOf(
+                Pair("token", this.apiToken),
                 Pair("sync_token", "*"), // TODO make incremental?
                 Pair("resource_types", "[\"$type\"]")
         )).responseString()
@@ -101,6 +101,7 @@ object Todoist : Backend {
         command.addProperty("temp_id", UUID.randomUUID().toString())
 
         val (request, response, result) = this.baseUrl.httpPost(listOf(
+                Pair("token", this.apiToken),
                 Pair("commands", "[${command.toString()}]")
         )).responseString()
 
