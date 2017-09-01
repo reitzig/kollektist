@@ -46,19 +46,19 @@ rudimentary CLI interface, you can create tasks in your Todoist account!
 
 When run as
 
-   java -jar kollektist.jar --api-token=<token> \
-                            --backend=todoist \
-                            --frontend=files \
-                            --loop
+    java -jar kollektist.jar --api-token=<token> \
+                             --backend=todoist \
+                             --frontend=files \
+                             --loop
                             
 Kollektist will pick up JSON files of a certain form
 from the current folder, read tasks from them, and
 push them to Todoist. You can create such files with
 another instance using the files backend, 
 
-   java -jar kollektist.jar --api-token=<token> \
-                            --backend=files \
-                            --frontend=cli
+    java -jar kollektist.jar --api-token=<token> \
+                             --backend=files \
+                             --frontend=cli
 
 or you own software. The idea here was, of course,
 to implement a GUI frontend for Kollektist, which
