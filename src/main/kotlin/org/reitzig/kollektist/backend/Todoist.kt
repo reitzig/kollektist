@@ -14,17 +14,19 @@ import java.util.*
 import org.reitzig.kollektist.Color as KColor
 
 /**
- * Refer to https://developer.todoist.com/ for documentation.
- * TODO document
+ * The main backend that interfaces with Todoist following the
+ * [official documentation](https://developer.todoist.com/).
+ *
+ * @param apiToken The token issued for the user. Keep it secret!
  */
 class Todoist(var apiToken: String) : Backend {
     /**
-     * Where to reach the Todoist API.
+     * Where to reach the Todoist API. Note the version!
      */
     val baseUrl = "https://todoist.com/API/v7/sync"
 
     /**
-     * The colors available on Todoist, mapping their color code to RGB hex.
+     * The colors available on Todoist, mapping their color codes to RGB hex.
      */
     object Colors {
         private val colors = mapOf(
@@ -59,6 +61,10 @@ class Todoist(var apiToken: String) : Backend {
     }
 
 
+    /**
+     * Retrieves a list of resources of the given type from Todoist.
+     * Admissible types include `labels` and `projects`.
+     */
     private fun <T : JsonRepresentable<T>> getResourceArray(type: String): JsonArray {
         val (request, response, result) = this.baseUrl.httpPost(listOf(
                 Pair("token", this.apiToken),
@@ -78,12 +84,18 @@ class Todoist(var apiToken: String) : Backend {
     }
 
     // TODO get once async, store future in (lazy?) val?
+    /**
+     * Retrieves the current list of labels from the specified Todoist account.
+     */
     override fun labels(): List<Label> {
         val jsonArray = getResourceArray<Label>("labels")
         val list = JsonHandler.fromJson<List<Label>>(jsonArray, typeToken<List<Label>>())
         return list.filter { !it.isObsolete }.sortedBy { it.itemOrder }
     }
 
+    /**
+     * Retrieves the current list of projects from the specified Todoist account.
+     */
     override fun projects(): List<Project> {
         val jsonArray = getResourceArray<Project>("projects")
         val list = JsonHandler.fromJson<List<Project>>(jsonArray, typeToken<List<Project>>())
@@ -91,7 +103,7 @@ class Todoist(var apiToken: String) : Backend {
     }
 
     /**
-     * Uploads the specified task to the connected Todoist account.
+     * Uploads the specified task to the specified Todoist account.
      */
     override fun add(task: Task) {
         val command = JsonObject()
@@ -119,6 +131,7 @@ class Todoist(var apiToken: String) : Backend {
              }
             */
         } else {
+            // TODO throws exception
             println("ERROR: ${response.httpStatusCode} response from server")
             println("Request was:\n$request")
             println("Response was:\n$response")

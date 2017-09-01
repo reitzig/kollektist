@@ -10,6 +10,9 @@ import org.reitzig.kollektist.Priority
 import org.reitzig.kollektist.Project
 import org.reitzig.kollektist.Task
 
+/**
+ * Reads and writes JSON of `Label` objects.
+ */
 val labelAdapter = typeAdapter<Label> {
     write {
         beginObject()
@@ -43,6 +46,9 @@ val labelAdapter = typeAdapter<Label> {
     }
 }
 
+/**
+ * Reads and writes JSON of `Project` objects.
+ */
 val projectAdapter = typeAdapter<Project> {
 
     write {
@@ -86,6 +92,9 @@ val projectAdapter = typeAdapter<Project> {
 
 }
 
+/**
+ * Reads and writes JSON of `Task` objects.
+ */
 val taskAdapter = typeAdapter<Task> {
     write {
         beginObject()
@@ -134,6 +143,9 @@ val taskAdapter = typeAdapter<Task> {
     }
 }
 
+/**
+ * Writes JSON for a task that is compatible with the Todoist REST API.
+ */
 val taskApiAdapter = typeAdapter<Task> {
     write {
         beginObject()
@@ -158,6 +170,9 @@ val taskApiAdapter = typeAdapter<Task> {
     }
 }
 
+/**
+ * A Json (de)serializer for `Task`, `Label` and `Project`.
+ */
 val JsonHandler = GsonBuilder()
         .registerTypeAdapter<Label>(labelAdapter)
         .registerTypeAdapter<Project>(projectAdapter)

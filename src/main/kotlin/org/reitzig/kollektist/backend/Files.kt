@@ -7,7 +7,25 @@ import org.reitzig.kollektist.Task
 import org.reitzig.kollektist.frontend.Frontend
 import java.io.File
 
+/**
+ * A file-based backend *and* frontend.
+ *
+ * As a frontend, it reads tasks from files stored in a user-set directory.
+ * Only files whose names start with `task_` are considered (in filesystem order),
+ * and their content has to be JSON compatible with `taskAdapter`.
+ * It also writes files with projects and labels, if the used backend provides any.
+ *
+ * As a backend, it writes task to files in a user-set directory.
+ * It also reads projects and labels from files, if there are any.
+ *
+ * Obviously, the two modes are compatible. You could have one instance of Kollektist with
+ * frontend `Files` and backend `Todoist` looping to pick up new tasks created by
+ * any frontend together with *backend* `Files.
+ */
 class Files(dirPath: String) : Backend, Frontend {
+    /**
+     * The folder this instance will store files in.
+     */
     private var directory: File
 
     val labelsFile: File
